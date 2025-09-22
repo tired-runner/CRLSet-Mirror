@@ -1,0 +1,31 @@
+name: Release Workflow
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: Install requirements.txt
+        run: |
+          pip install -r requirements.txt
+      - name: Run pyinstaller
+        run: |
+          python -m PyInstaller --onefile mirror-crl.py
+          python -m PyInstaller mirror-crl.spec
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CRLSet-Mirror
+          path: dist/mirror-crl
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          make_latest: true
+
