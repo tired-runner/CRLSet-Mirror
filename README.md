@@ -29,7 +29,7 @@ You could additionally create a timer file or use whatever other mechanism syste
 
    [Service]
    Type=oneshot
-   ExecStart=<your home path>/CRLData/mirror-crl --path <your CertificateRevocation location>
+   ExecStart=<your home path>/CRLUpdater/mirror-crl --path <your CertificateRevocation location>
 
    [Install]
    WantedBy=default.target
