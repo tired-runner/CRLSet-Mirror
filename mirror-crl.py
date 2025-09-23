@@ -20,7 +20,7 @@ def fail(msg: str) -> None:
     print(msg, file=sys.stderr)
     sys.exit(1)
 
-def fetch() -> Tuple[bytes, str, str]:
+def fetch(pathtocheck: str) -> Tuple[bytes, str, str]:
     response = requests.get(VERSION_URL)
     if response.status_code != 200:
         fail("Failed to get version url.")
@@ -39,6 +39,10 @@ def fetch() -> Tuple[bytes, str, str]:
 
     if not crx_url or not version:
         fail("Could not parse crx info from xml.")
+
+    if os.path.isdir(os.path.join(pathtocheck, version)):
+        print("Already up to date.")
+        sys.exit(0)
 
     response = requests.get(crx_url)
     if response.status_code != 200:
@@ -77,20 +81,14 @@ def main():
     )
 
     args = parser.parse_args()
-
     path = os.path.expanduser(args.path).rstrip('/')
 
     if not os.path.isdir(path) or "CertificateRevocation" not in path:
         fail("Output directory invalid.")
 
-    crx_bytes, crx_url, version = fetch()
+    crx_bytes, crx_url, version = fetch(path)
 
     version_path = os.path.join(path, version)
-
-    if os.path.isdir(version_path):
-        print("Already up to date.")
-        sys.exit(0)
-
     os.makedirs(version_path)
 
     with zipfile.ZipFile(BytesIO(crx_bytes)) as zf:
