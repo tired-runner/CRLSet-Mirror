@@ -10,11 +10,11 @@ from typing import Tuple
 
 APP_ID = "hfnkpimlhhgieaddgfemjhofmfblmnib"
 PARAMS = {
-    'x': f'id={APP_ID}&v=&uc&acceptformat=crx3',
-    'tag': 'force_full'
+    "x": f"id={APP_ID}&v=&uc&acceptformat=crx3",
+    "tag": "force_full"
 }
-VERSION_URL=f"https://clients2.google.com/service/update2/crx?{requests.compat.urlencode(PARAMS)}"
-XML_NAMESPACE = '{http://www.google.com/update2/response}'
+VERSION_URL = f"https://clients2.google.com/service/update2/crx?{requests.compat.urlencode(PARAMS)}"
+XML_NAMESPACE = "{http://www.google.com/update2/response}"
 
 def fail(msg: str) -> None:
     print(msg, file=sys.stderr)
@@ -30,11 +30,11 @@ def fetch(pathtocheck: str) -> Tuple[bytes, str, str]:
     crx_url = ""
     version = ""
 
-    for app in root.findall(f'{XML_NAMESPACE}app'):
-        if app.get('appid') == APP_ID:
-            update_check = app.find(f'{XML_NAMESPACE}updatecheck')
-            crx_url = update_check.get('codebase')
-            version = update_check.get('version')
+    for app in root.findall(f"{XML_NAMESPACE}app"):
+        if app.get("appid") == APP_ID:
+            update_check = app.find(f"{XML_NAMESPACE}updatecheck")
+            crx_url = update_check.get("codebase")
+            version = update_check.get("version")
             break
 
     if not crx_url or not version:
