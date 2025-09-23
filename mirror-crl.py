@@ -20,7 +20,7 @@ def fail(msg: str) -> None:
     print(msg, file=sys.stderr)
     sys.exit(1)
 
-def fetch(pathtocheck: str) -> Tuple[bytes, str, str]:
+def fetch(path_to_check: str) -> Tuple[bytes, str, str]:
     response = requests.get(VERSION_URL)
     if response.status_code != 200:
         fail("Failed to get version url.")
@@ -40,7 +40,7 @@ def fetch(pathtocheck: str) -> Tuple[bytes, str, str]:
     if not crx_url or not version:
         fail("Could not parse crx info from xml.")
 
-    if os.path.isdir(os.path.join(pathtocheck, version)):
+    if os.path.isdir(os.path.join(path_to_check, version)):
         print("Already up to date.")
         sys.exit(0)
 
