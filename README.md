@@ -51,7 +51,7 @@ pip install -r requirements.txt
 python -m PyInstaller --onefile mirror-crl.py
 python -m PyInstaller mirror-crl.spec
 ```
-If you run into problems or come up with platform‑specific instructions, please file an issue or submit a pull request. If I get confirmation the script works on Windows and MacOS, I’ll add CI to build executables for those systems.
+If you run into problems or come up with platform‑specific instructions, please file an issue or submit a pull request. If I get confirmation the script works on Windows or MacOS, I’ll add CI to build executables for those systems.
 
 ### Locating your CertificateRevocation folder
 This folder's location is platform dependent. Places to look include:
