@@ -59,7 +59,6 @@ def fetch(path_to_check: Path) -> Tuple[bytes, Path]:
     if not crx_bytes.startswith(b"Cr24"):
         fail("CRX format from google has changed. Please file a github issue if one does not already exist.")
 
-
     return crx_bytes, version_path
 
 def clear_old_versions(path: Path) -> None:
