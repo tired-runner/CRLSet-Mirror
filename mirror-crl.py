@@ -1,12 +1,12 @@
 import requests
 import xml.etree.ElementTree as ET
 import zipfile
-import os
 import sys
 import argparse
 import shutil
 from io import BytesIO
 from typing import Tuple
+from pathlib import Path
 
 APP_ID = "hfnkpimlhhgieaddgfemjhofmfblmnib"
 PARAMS = {
@@ -20,8 +20,14 @@ def fail(msg: str) -> None:
     print(msg, file=sys.stderr)
     sys.exit(1)
 
-def fetch(path_to_check: str) -> Tuple[bytes, str]:
-    response = requests.get(VERSION_URL)
+def get(url: str):
+    try:
+        return requests.get(url, timeout=10)
+    except Exception as e:
+        fail(f"Network error during get request for {url}")
+
+def fetch(path_to_check: Path) -> Tuple[bytes, Path]:
+    response = get(VERSION_URL)
     if response.status_code != 200:
         fail("Failed to get version url.")
 
@@ -40,30 +46,44 @@ def fetch(path_to_check: str) -> Tuple[bytes, str]:
     if not crx_url or not version:
         fail("Could not parse crx info from xml.")
 
-    if os.path.isdir(os.path.join(path_to_check, version)):
+    version_path = path_to_check / version
+    if version_path.is_dir():
         print("Already up to date.")
         sys.exit(0)
 
-    response = requests.get(crx_url)
+    response = get(crx_url)
     if response.status_code != 200:
         fail("Request for CRX failed.")
 
-    return response.content, version
+    crx_bytes = response.content
+    if not crx_bytes.startswith(b"Cr24"):
+        fail("CRX format from google has changed. Please file a github issue if one does not already exist.")
 
-def clear_old_versions(path: str) -> None:
-    subdirs = [d for d in os.listdir(path) if os.path.isdir(os.path.join(path, d)) and d.isdigit()]
+
+    return crx_bytes, version_path
+
+def clear_old_versions(path: Path) -> None:
+    subdirs = sorted([d for d in path.iterdir() if d.is_dir() and d.name.isdigit()],
+                  key=lambda d: int(d.name))
 
     if len(subdirs) <= 2:
         return
-    
-    subdirs.sort(key=int)
 
-    for d in subdirs[:-2]:
-        full_path = os.path.join(path, d)
-        if full_path != "/": # useless check, but just in case :)
-            shutil.rmtree(full_path)
+    for old in subdirs[:-2]:
+        shutil.rmtree(old)
 
-def main():
+def extract_crx(crx_bytes: bytes, version_path: Path) -> None:
+    version_path.mkdir(exist_ok=False)
+
+    # Skip the header. Seems to not matter for now,
+    # but in case google changes the header best to include this.
+    zip_from_crx = crx_bytes[16:]
+
+    with zipfile.ZipFile(BytesIO(zip_from_crx)) as zf:
+        zf.extractall(version_path)
+
+
+def main() -> None:
     parser = argparse.ArgumentParser(description="""
     This will download the latest CRLSet component from google and extract it to the specified folder. 
     Intended for use in ungoogled chromium keeping this component up to date for those who want it.
@@ -81,18 +101,14 @@ def main():
     )
 
     args = parser.parse_args()
-    path = os.path.expanduser(args.path).rstrip('/')
+    path = Path(args.path).expanduser().resolve()
 
-    if not os.path.isdir(path) or "CertificateRevocation" not in path:
+    if not path.is_dir() or path.name != "CertificateRevocation":
         fail("Output directory invalid.")
 
-    crx_bytes, version = fetch(path)
+    crx_bytes, version_path = fetch(path)
 
-    version_path = os.path.join(path, version)
-    os.makedirs(version_path)
-
-    with zipfile.ZipFile(BytesIO(crx_bytes)) as zf:
-        zf.extractall(version_path)
+    extract_crx(crx_bytes, version_path)
 
     clear_old_versions(path)
 
