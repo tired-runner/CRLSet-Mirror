@@ -1,7 +1,7 @@
 # CRLSet-Mirror
 Pulls down and installs CRLSet component for ungoogled-chromium users who want certificate revocation
 
-Note that this does pull the latest CRLSet file directly from google. Not a terribly exciting bit of traffic since its basically 2 get requests to get the version and pull down the file, but its worth noting since this is for ungoogled-chromium users. 
+Note that this does pull the latest CRLSet file directly from google. Not a terribly exciting bit of traffic, but its worth noting since this is for ungoogled-chromium users. The connections to google are two get requests: one to retrieve the latest version information and another to pull down the actual file if the currently installed version is out of date. 
 
 # Usage
 
@@ -40,9 +40,11 @@ You could additionally create a timer file or use whatever other mechanism syste
 
 ### Non systemd auto updates
 0. Locate your ungoogled-chromium CertificateRevocation folder location.
-1. Use chron or whatever other task scheduling mechanism to run `mirror-crl --path <your CertificateRevocation location>` with whatever frequency you want
+1. Go to the releases tab and download the [mirror-crl artifact](https://github.com/tired-runner/CRLSet-Mirror/releases/download/latest/mirror-crl)
+2. Move it to where you want to keep it, and make it executable with `chmod u+x mirror-crl`
+3. Use cron or whatever other task scheduling mechanism to run `mirror-crl --path <your CertificateRevocation location>` with whatever frequency you want
 
 ### Locating your CertificateRevocation folder
-This is a folder's location is platform dependent, places to look include
+This folder's location is platform dependent. Places to look include:
 * `~/.config/chromium/CertificateRevocation`
 * `~/.var/app/io.github.ungoogled_software.ungoogled_chromium/config/chromium/CertificateRevocation` This is where it is for me, since I am using a flatpak installation
