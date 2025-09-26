@@ -20,7 +20,7 @@ def fail(msg: str) -> None:
     print(msg, file=sys.stderr)
     sys.exit(1)
 
-def fetch(path_to_check: str) -> Tuple[bytes, str, str]:
+def fetch(path_to_check: str) -> Tuple[bytes, str]:
     response = requests.get(VERSION_URL)
     if response.status_code != 200:
         fail("Failed to get version url.")
@@ -48,7 +48,7 @@ def fetch(path_to_check: str) -> Tuple[bytes, str, str]:
     if response.status_code != 200:
         fail("Request for CRX failed.")
 
-    return response.content, crx_url, version
+    return response.content, version
 
 def clear_old_versions(path: str) -> None:
     subdirs = [d for d in os.listdir(path) if os.path.isdir(os.path.join(path, d)) and d.isdigit()]
@@ -86,7 +86,7 @@ def main():
     if not os.path.isdir(path) or "CertificateRevocation" not in path:
         fail("Output directory invalid.")
 
-    crx_bytes, crx_url, version = fetch(path)
+    crx_bytes, version = fetch(path)
 
     version_path = os.path.join(path, version)
     os.makedirs(version_path)
