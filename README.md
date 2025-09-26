@@ -44,6 +44,15 @@ You could additionally create a timer file or use whatever other mechanism syste
 2. Move it to where you want to keep it, and make it executable with `chmod u+x mirror-crl`
 3. Use cron or whatever other task scheduling mechanism to run `mirror-crl --path <your CertificateRevocation location>` with whatever frequency you want
 
+### Non Linux systems
+This Python script should be cross platform, but I haven't tested it on Windows or MacOS. If you'd like to try it out, build an executable for your platform running the following commands:
+```
+pip install -r requirements.txt
+python -m PyInstaller --onefile mirror-crl.py
+python -m PyInstaller mirror-crl.spec
+```
+If you run into problems or come up with platform‑specific instructions, please file an issue or submit a pull request. If I get confirmation the script works on Windows and MacOS, I’ll add CI to build executables for those systems.
+
 ### Locating your CertificateRevocation folder
 This folder's location is platform dependent. Places to look include:
 * `~/.config/chromium/CertificateRevocation`
