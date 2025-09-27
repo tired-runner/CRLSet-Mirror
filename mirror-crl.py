@@ -20,7 +20,7 @@ def fail(msg: str) -> None:
     print(msg, file=sys.stderr)
     sys.exit(1)
 
-def get(url: str):
+def get(url: str) -> requests.Response:
     try:
         return requests.get(url, timeout=10)
     except Exception as e:
